@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="26000" systemVersion="24A335" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES">
-    <entity name="CDHome" representedClassName="CDHome" syncable="YES" codeGenerationType="manual">
+    <entity name="CDHome" representedClassName="CDHome" syncable="YES">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <relationship name="plants" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDPlant" inverseName="home" inverseEntity="CDPlant"/>
     </entity>
-    <entity name="CDPlant" representedClassName="CDPlant" syncable="YES" codeGenerationType="manual">
+    <entity name="CDPlant" representedClassName="CDPlant" syncable="YES">
         <attribute name="archivedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="iconName" optional="YES" attributeType="String"/>
@@ -15,7 +15,7 @@
         <relationship name="home" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDHome" inverseName="plants" inverseEntity="CDHome"/>
         <relationship name="wateringEvents" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDWateringEvent" inverseName="plant" inverseEntity="CDWateringEvent"/>
     </entity>
-    <entity name="CDWateringEvent" representedClassName="CDWateringEvent" syncable="YES" codeGenerationType="manual">
+    <entity name="CDWateringEvent" representedClassName="CDWateringEvent" syncable="YES">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="wateredAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
