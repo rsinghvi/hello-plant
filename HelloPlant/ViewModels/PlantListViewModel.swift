@@ -21,8 +21,8 @@ final class PlantListViewModel {
     // `deinit` is nonisolated, so these need to opt out of main-actor isolation
     // checking to be read/cancelled there; they are otherwise only touched
     // while already on the main actor.
-    nonisolated private var undoExpirationTask: Task<Void, Never>?
-    nonisolated private var changeToken: NSObjectProtocol?
+    nonisolated(unsafe) private var undoExpirationTask: Task<Void, Never>?
+    nonisolated(unsafe) private var changeToken: NSObjectProtocol?
 
     init(
         repository: any PlantRepository,

@@ -21,7 +21,7 @@ final class SyncStatusObserver {
     // Cleanup in `deinit` runs outside actor isolation, so the token itself is
     // opted out of isolation checking; it is only ever touched from `init`
     // (main actor at the time) and `deinit` (after the last strong reference).
-    nonisolated private var token: NSObjectProtocol?
+    nonisolated(unsafe) private var token: NSObjectProtocol?
 
     init(notificationCenter: NotificationCenter = .default) {
         token = notificationCenter.addObserver(
