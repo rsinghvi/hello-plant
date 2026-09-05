@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HelloPlant — UX Prototype</title>
+<style>
+  :root{
+    /* botanical palette */
+    --cream:#FDFAF3; --paper:#FFFFFF;
+    --sage-1:#EDF5EA; --sage-2:#DCEBD6;
+    --leaf:#3E9B54; --leaf-d:#2A7340; --leaf-x:#1B4D2E;
+    --terra:#D9825C; --terra-l:#FBEDE6;
+    --sun:#EFB43C;   --sun-l:#FDF3DF;
+    --sky:#5FA8D3;   --sky-l:#E7F2FA;
+    --lilac:#9B7EC8; --lilac-l:#F1ECFA;
+    --rose:#D96A8B;  --rose-l:#FBEAF0;
+    --ink:#20301F; --ink-2:#6B7A69; --ink-3:#9AA898;
+    --blue:#0A7AFF; --red:#E5484D;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{
+    margin:0;padding:40px 32px 60px;background:#161a15;color:#fff;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.4px}
+  h2.sec{font-size:18px;margin:34px 0 20px;color:#fff}
+  .sub{color:#8d9a8b;font-size:14px;margin:0 0 30px}
+  .row{display:flex;gap:26px;flex-wrap:nowrap;margin-bottom:38px;width:max-content}
+  .cell{width:346px}
+  .cap{font-size:12.5px;color:#93a291;margin:0 0 9px;line-height:1.45}
+  .cap b{color:#fff;font-weight:600;display:block;font-size:13.5px;margin-bottom:2px}
+
+  /* ---------- device ---------- */
+  .phone{width:346px;height:634px;background:var(--cream);border-radius:40px;
+    border:9px solid #000;position:relative;overflow:hidden;box-shadow:0 12px 38px rgba(0,0,0,.6)}
+  .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);
+    width:96px;height:26px;background:#000;border-radius:15px;z-index:40}
+  .status{height:44px;display:flex;align-items:flex-end;justify-content:space-between;
+    padding:0 22px 4px;font-size:12.5px;font-weight:600;color:var(--ink);position:relative;z-index:20}
+  .screen{height:581px;overflow:hidden;position:relative;color:var(--ink)}
+
+  /* leafy backdrop */
+  .bg{position:absolute;inset:0;background:
+      radial-gradient(120% 60% at 100% 0%, var(--sage-2) 0%, rgba(220,235,214,0) 62%),
+      radial-gradient(90% 44% at 0% 4%, #F3F0DE 0%, rgba(243,240,222,0) 60%),
+      var(--cream);}
+  .bg:after{content:"";position:absolute;top:-46px;right:-40px;width:210px;height:210px;
+    background:radial-gradient(circle at 34% 34%, rgba(62,155,84,.16), rgba(62,155,84,0) 68%);border-radius:50%}
+  .deco{position:absolute;font-size:120px;opacity:.07;line-height:1;user-select:none}
+
+  /* ---------- header ---------- */
+  .hd{padding:4px 20px 0;position:relative;z-index:10}
+  .eyebrow{font-size:10.5px;font-weight:800;letter-spacing:1.3px;color:var(--leaf-d);opacity:.85}
+  .greet{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-top:4px;color:var(--ink);padding-right:64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta{font-size:12.5px;color:var(--ink-2);margin-top:5px}
+  .people{position:absolute;right:18px;top:6px;display:flex}
+  .people .av{margin-left:-9px;border:2.5px solid var(--cream)}
+  .plus{position:absolute;right:18px;top:64px;width:34px;height:34px;border-radius:17px;
+    background:var(--leaf);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:600;box-shadow:0 4px 12px rgba(62,155,84,.42)}
+
+  .av{width:30px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;color:#fff;flex:none}
+  .av.a{background:linear-gradient(150deg,#4FB06A,#2A7340)}
+  .av.s{background:linear-gradient(150deg,#6FB6DE,#3D7FA8)}
+  .av.sm{width:22px;height:22px;border-radius:11px;font-size:9.5px}
+
+  /* ---------- plant card ---------- */
+  .cards{padding:14px 16px 0;position:relative;z-index:10}
+  .card{background:var(--paper);border-radius:20px;padding:11px;margin-bottom:11px;
+    display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;
+    box-shadow:0 3px 12px rgba(30,60,30,.09)}
+  .card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--ac)}
+  .card .tint{position:absolute;inset:0;background:var(--ac);opacity:.045}
+  .pot{width:46px;height:46px;border-radius:15px;flex:none;display:flex;align-items:center;
+    justify-content:center;font-size:24px;position:relative;z-index:2;
+    background:linear-gradient(155deg,var(--acl),#fff);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.9)}
+  .cinfo{flex:1;min-width:0;position:relative;z-index:2}
+  .cname{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cwhen{font-size:12.5px;color:var(--ink-2);margin-top:3px;display:flex;align-items:center;gap:5px;
+    white-space:nowrap;min-width:0}
+  .cwhen .ago{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .chip{flex:none;display:inline-flex;align-items:center;gap:4px;background:var(--sage-1);
+    border-radius:9px;padding:2px 7px 2px 3px;font-size:11px;font-weight:600;color:var(--leaf-x)}
+  .chip.blue{background:var(--sky-l);color:#2E6C93}
+  .water{flex:none;position:relative;z-index:2;background:linear-gradient(160deg,#4FB06A,var(--leaf-d));
+    color:#fff;border-radius:15px;padding:9px 11px;font-size:11.5px;font-weight:800;
+    display:flex;align-items:center;gap:4px;box-shadow:0 4px 11px rgba(42,115,64,.34)}
+  .water.done{background:var(--sage-2);color:var(--leaf-x);box-shadow:none}
+  .water.ghost{background:#EDEFEA;color:#A9B4A7;box-shadow:none}
+
+  /* ---------- misc ---------- */
+  .foot{font-size:11.5px;color:var(--ink-3);margin:2px 22px;line-height:1.45;position:relative;z-index:10}
+  .sync{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;
+    color:var(--ink-3);margin-top:12px;position:relative;z-index:10}
+  .dot{width:7px;height:7px;border-radius:4px;background:var(--leaf)}
+  .dot.off{background:var(--sun)}
+
+  .banner{position:absolute;left:16px;right:16px;bottom:20px;z-index:30;
+    background:linear-gradient(150deg,#24402A,#16281A);color:#fff;border-radius:18px;
+    padding:13px 16px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 10px 26px rgba(0,0,0,.4)}
+  .banner .b1{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+  .banner .b2{font-size:11.5px;color:#9DBFA6;margin-top:2px}
+  .banner .undo{color:#8FE3A6;font-weight:800;font-size:14px}
+
+  .navbar{height:46px;display:flex;align-items:center;justify-content:center;position:relative;
+    font-weight:700;font-size:16.5px;color:var(--ink);z-index:20}
+  .navbar .lead{position:absolute;left:16px;color:var(--leaf-d);font-weight:600;font-size:15px}
+  .navbar .trail{position:absolute;right:16px;color:var(--leaf-d);font-weight:700;font-size:15px}
+
+  .hdr{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:1.1px;
+    margin:18px 24px 7px;font-weight:800;position:relative;z-index:10}
+  .field{background:var(--paper);border-radius:16px;padding:14px 16px;margin:0 16px;font-size:16.5px;
+    position:relative;z-index:10;box-shadow:0 3px 12px rgba(30,60,30,.08);color:var(--ink)}
+  .caret{display:inline-block;width:2px;height:19px;background:var(--leaf);
+    vertical-align:-4px;animation:bl 1s steps(1) infinite}
+  @keyframes bl{50%{opacity:0}}
+  .cta{background:linear-gradient(160deg,#4FB06A,var(--leaf-d));color:#fff;border-radius:17px;
+    padding:15px;margin:16px;text-align:center;font-size:16.5px;font-weight:800;
+    box-shadow:0 7px 18px rgba(42,115,64,.34);position:relative;z-index:10}
+  .cta.sec{background:none;color:var(--leaf-d);box-shadow:none;padding:8px}
+
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;text-align:center;padding:0 38px;z-index:10}
+  .center h2{font-size:21px;margin:0 0 8px;letter-spacing:-.4px;color:var(--ink)}
+  .center p{font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.55}
+
+  .scrim{position:absolute;inset:0;background:rgba(22,40,24,.34);z-index:25}
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:30;background:var(--cream);
+    border-radius:24px 24px 0 0;overflow:hidden;box-shadow:0 -10px 30px rgba(0,0,0,.26)}
+  .grab{width:38px;height:4.5px;background:#D5DCD2;border-radius:3px;margin:9px auto 0}
+
+  /* detail hero */
+  .hero{margin:6px 16px 0;border-radius:24px;padding:20px 16px;text-align:center;position:relative;
+    z-index:10;overflow:hidden;background:linear-gradient(160deg,var(--acl),#fff)}
+  .hero .ring{width:74px;height:74px;border-radius:37px;margin:0 auto;display:flex;
+    align-items:center;justify-content:center;font-size:36px;background:#fff;
+    box-shadow:0 5px 16px rgba(30,60,30,.13)}
+  .hero .big{font-size:21px;font-weight:800;letter-spacing:-.4px;margin-top:11px;color:var(--ink)}
+  .hero .sm{font-size:12.5px;color:var(--ink-2);margin-top:4px}
+  .hero .btn{background:linear-gradient(160deg,#4FB06A,var(--leaf-d));color:#fff;border-radius:16px;
+    padding:14px;margin-top:15px;font-size:15.5px;font-weight:800;
+    box-shadow:0 6px 16px rgba(42,115,64,.34)}
+
+  .tl{margin:0 16px;position:relative;z-index:10}
+  .ev{background:var(--paper);border-radius:14px;padding:10px 12px;margin-bottom:8px;
+    display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(30,60,30,.07)}
+  .ev .l{flex:1;font-size:14px;font-weight:600;color:var(--ink)}
+  .ev .r{font-size:12px;color:var(--ink-3)}
+
+  .prow{background:var(--paper);border-radius:16px;padding:14px 16px;margin:0 16px 9px;
+    font-size:15.5px;display:flex;align-items:center;gap:11px;position:relative;z-index:10;
+    box-shadow:0 3px 10px rgba(30,60,30,.07);color:var(--ink)}
+  .prow .r{margin-left:auto;font-size:13px;color:var(--ink-3)}
+  .destr{color:var(--red);font-weight:600}
+  .badge{background:var(--sage-2);color:var(--leaf-x);font-size:10px;font-weight:800;
+    padding:3px 8px;border-radius:9px;letter-spacing:.3px}
+  .offbar{margin:10px 16px 0;background:var(--sun-l);color:#8A6218;font-size:12px;font-weight:600;
+    text-align:center;padding:9px;border-radius:13px;position:relative;z-index:10}
+</style>
+</head>
+<body>
+
+<h1>HelloPlant — UX prototype</h1>
+<p class="sub">Botanical direction. Static HTML mockup for agreement only — not SwiftUI, not compiled.</p>
+
+<!-- =================== ROW 1 =================== -->
+<h2 class="sec">Core loop</h2>
+<div class="row" id="row1">
+
+  <!-- 1 onboarding -->
+  <div class="cell">
+    <p class="cap"><b>1 · First launch</b>Warm, botanical welcome. Name asked once, stored on the device only.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="deco" style="top:-14px;left:-26px;transform:rotate(-18deg)">🌿</div>
+        <div class="deco" style="bottom:-24px;right:-22px;transform:rotate(14deg)">🪴</div>
+        <div style="text-align:center;padding:34px 26px 0;position:relative;z-index:10">
+          <div style="font-size:60px;line-height:1">🪴</div>
+          <div style="font-size:27px;font-weight:800;margin-top:10px;letter-spacing:-.7px;color:var(--leaf-x)">HelloPlant</div>
+          <div style="font-size:14px;color:var(--ink-2);margin-top:9px;line-height:1.55">
+            Know who watered the plants,<br>and when.
+          </div>
+        </div>
+        <div class="hdr" style="margin-top:30px">WHAT SHOULD WE CALL YOU?</div>
+        <div class="field">Alex<span class="caret"></span></div>
+        <div class="foot" style="margin-top:9px">Housemates see this name next to the plants you water.</div>
+        <div class="cta">Let’s grow 🌱</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 empty -->
+  <div class="cell">
+    <p class="cap"><b>2 · No plants yet</b>One inviting action. No setup, no gardens, no rooms.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="deco" style="top:66px;left:-30px;transform:rotate(-14deg)">🌱</div>
+        <div class="hd">
+          <div class="eyebrow">OUR HOME</div>
+          <div class="greet">Your plants</div>
+          <div class="people"><div class="av a">A</div></div>
+        </div>
+        <div class="center" style="top:70px">
+          <div style="font-size:66px;line-height:1;margin-bottom:12px">🌱</div>
+          <h2>Let’s add your first plant</h2>
+          <p>Add the plants in your home so everyone<br>can see when they were last watered.</p>
+          <div style="background:linear-gradient(160deg,#4FB06A,var(--leaf-d));color:#fff;
+                      border-radius:16px;padding:13px 28px;margin-top:20px;font-size:15.5px;
+                      font-weight:800;box-shadow:0 7px 18px rgba(42,115,64,.34)">＋ &nbsp;Add a plant</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 main list -->
+  <div class="cell">
+    <p class="cap"><b>3 · Main screen ★</b>Colour-coded plant cards. Status + who + one-tap Water, all visible.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="hd">
+          <div class="eyebrow">OUR HOME</div>
+          <div class="greet">Good morning, Alex</div>
+          <div class="meta">4 plants · 3 watered this week</div>
+          <div class="people"><div class="av a">A</div><div class="av s">S</div></div>
+        </div>
+        <div class="cards" style="padding-top:12px">
+          <div class="card" style="--ac:var(--lilac);--acl:var(--lilac-l)"><div class="tint"></div>
+            <div class="pot">🪴</div>
+            <div class="cinfo"><div class="cname">Fiddle Leaf Fig</div>
+              <div class="cwhen">Never watered</div></div>
+            <div class="water">💧 Water</div></div>
+
+          <div class="card" style="--ac:var(--terra);--acl:var(--terra-l)"><div class="tint"></div>
+            <div class="pot">🌵</div>
+            <div class="cinfo"><div class="cname">Snake Plant</div>
+              <div class="cwhen"><span class="ago">9 days ago</span><span class="chip"><span class="av a sm">A</span>you</span></div></div>
+            <div class="water">💧 Water</div></div>
+
+          <div class="card" style="--ac:var(--leaf);--acl:var(--sage-1)"><div class="tint"></div>
+            <div class="pot">🌿</div>
+            <div class="cinfo"><div class="cname">Monstera</div>
+              <div class="cwhen"><span class="ago">2 days ago</span><span class="chip blue"><span class="av s sm">S</span>Sam</span></div></div>
+            <div class="water">💧 Water</div></div>
+
+          <div class="card" style="--ac:var(--sun);--acl:var(--sun-l)"><div class="tint"></div>
+            <div class="pot">🌱</div>
+            <div class="cinfo"><div class="cname">Basil</div>
+              <div class="cwhen"><span class="ago">Today 08:15</span><span class="chip blue"><span class="av s sm">S</span>Sam</span></div></div>
+            <div class="water">💧 Water</div></div>
+        </div>
+        <div class="sync"><span class="dot"></span> Up to date · shared with Sam</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 tapped -->
+  <div class="cell">
+    <p class="cap"><b>4 · Tapped ★</b>Card blooms green, “Just now · you”. Undo banner ~6 s; the card holds its place.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="hd">
+          <div class="eyebrow">OUR HOME</div>
+          <div class="greet">Good morning, Alex</div>
+          <div class="meta">4 plants · 4 watered this week</div>
+          <div class="people"><div class="av a">A</div><div class="av s">S</div></div>
+        </div>
+        <div class="cards" style="padding-top:12px">
+          <div class="card" style="--ac:var(--lilac);--acl:var(--lilac-l)"><div class="tint"></div>
+            <div class="pot">🪴</div>
+            <div class="cinfo"><div class="cname">Fiddle Leaf Fig</div>
+              <div class="cwhen">Never watered</div></div>
+            <div class="water">💧 Water</div></div>
+
+          <div class="card" style="--ac:var(--leaf);--acl:var(--sage-1);
+               background:linear-gradient(150deg,#EAF7EC,#fff);
+               box-shadow:0 5px 16px rgba(42,115,64,.2)"><div class="tint"></div>
+            <div class="pot">🌵</div>
+            <div class="cinfo"><div class="cname">Snake Plant</div>
+              <div class="cwhen" style="color:var(--leaf-d);font-weight:700"><span class="ago">Just now</span><span class="chip"><span class="av a sm">A</span>you</span></div></div>
+            <div class="water done">✓ Watered</div></div>
+
+          <div class="card" style="--ac:var(--leaf);--acl:var(--sage-1)"><div class="tint"></div>
+            <div class="pot">🌿</div>
+            <div class="cinfo"><div class="cname">Monstera</div>
+              <div class="cwhen"><span class="ago">2 days ago</span><span class="chip blue"><span class="av s sm">S</span>Sam</span></div></div>
+            <div class="water">💧 Water</div></div>
+
+          <div class="card" style="--ac:var(--sun);--acl:var(--sun-l)"><div class="tint"></div>
+            <div class="pot">🌱</div>
+            <div class="cinfo"><div class="cname">Basil</div>
+              <div class="cwhen"><span class="ago">Today 08:15</span><span class="chip blue"><span class="av s sm">S</span>Sam</span></div></div>
+            <div class="water">💧 Water</div></div>
+        </div>
+        <div class="banner">
+          <div><div class="b1">🌵 Snake Plant watered</div><div class="b2">Recorded as Alex</div></div>
+          <div class="undo">Undo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- =================== ROW 2 =================== -->
+<h2 class="sec">Managing plants &amp; sharing</h2>
+<div class="row" id="row2">
+
+  <!-- 5 add -->
+  <div class="cell">
+    <p class="cap"><b>5 · Add a plant</b>Name plus an optional icon. No photo, no species, no schedule.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="hd" style="opacity:.4">
+          <div class="eyebrow">OUR HOME</div><div class="greet">Good morning, Alex</div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet" style="top:96px">
+          <div class="grab"></div>
+          <div class="navbar"><span class="lead">Cancel</span>New plant<span class="trail">Add</span></div>
+          <div class="hdr" style="margin-top:4px">NAME</div>
+          <div class="field">Peace Lily<span class="caret"></span></div>
+          <div class="hdr">PICK AN ICON</div>
+          <div style="display:flex;gap:9px;padding:0 16px;position:relative;z-index:10;flex-wrap:wrap">
+            <div class="pot" style="--acl:var(--sage-1);background:linear-gradient(155deg,var(--sage-1),#fff)">🌿</div>
+            <div class="pot" style="background:linear-gradient(155deg,var(--terra-l),#fff)">🌵</div>
+            <div class="pot" style="background:linear-gradient(155deg,var(--sun-l),#fff);
+                 box-shadow:0 0 0 3px var(--leaf)">🌱</div>
+            <div class="pot" style="background:linear-gradient(155deg,var(--lilac-l),#fff)">🪴</div>
+            <div class="pot" style="background:linear-gradient(155deg,var(--rose-l),#fff)">🌸</div>
+          </div>
+          <div class="foot" style="margin-top:12px">Everyone in your home will see this plant.</div>
+          <div style="height:16px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 detail -->
+  <div class="cell">
+    <p class="cap"><b>6 · Plant detail</b>Derived status, then the full history newest-first with who.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="navbar"><span class="lead">‹ Plants</span>Monstera<span class="trail">Edit</span></div>
+        <div class="hero" style="--acl:var(--sage-1)">
+          <div class="ring">🌿</div>
+          <div class="big">Watered 2 days ago</div>
+          <div class="sm">by Sam · Thu 28 Aug, 19:04</div>
+          <div class="btn">💧 &nbsp;Watered Now</div>
+        </div>
+        <div class="hdr">HISTORY</div>
+        <div class="tl">
+          <div class="ev"><div class="av s sm">S</div><div class="l">Sam</div><div class="r">2 days ago</div></div>
+          <div class="ev"><div class="av a sm">A</div><div class="l">You</div><div class="r">9 days ago</div></div>
+          <div class="ev"><div class="av s sm">S</div><div class="l">Sam</div><div class="r">16 days ago</div></div>
+          <div class="ev"><div class="av a sm">A</div><div class="l">You</div><div class="r">23 days ago</div></div>
+        </div>
+        <div class="foot">4 waterings since 3 Aug 2026.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 edit -->
+  <div class="cell">
+    <p class="cap"><b>7 · Rename / archive</b>Archiving hides the plant everywhere but keeps its history.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="navbar"><span class="lead">Cancel</span>Edit plant<span class="trail">Save</span></div>
+        <div class="hdr" style="margin-top:2px">NAME</div>
+        <div class="field">Monstera<span class="caret"></span></div>
+        <div class="hdr">ICON</div>
+        <div style="display:flex;gap:9px;padding:0 16px;position:relative;z-index:10">
+          <div class="pot" style="background:linear-gradient(155deg,var(--sage-1),#fff);
+               box-shadow:0 0 0 3px var(--leaf)">🌿</div>
+          <div class="pot" style="background:linear-gradient(155deg,var(--terra-l),#fff)">🌵</div>
+          <div class="pot" style="background:linear-gradient(155deg,var(--sun-l),#fff)">🌱</div>
+          <div class="pot" style="background:linear-gradient(155deg,var(--lilac-l),#fff)">🪴</div>
+        </div>
+        <div class="hdr">ARCHIVE</div>
+        <div class="prow destr">🗄️ &nbsp;Archive plant</div>
+        <div class="foot">
+          Archived plants are hidden for everyone in your home. Their watering history is kept
+          and you can restore them later.
+        </div>
+        <div class="hdr">ADDED</div>
+        <div class="prow"><div class="av s sm">S</div>Added by Sam<span class="r">3 Aug 2026</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8 share -->
+  <div class="cell">
+    <p class="cap"><b>8 · Share the home</b>Shared once. Every plant and watering follows automatically.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="hd" style="opacity:.4"><div class="eyebrow">OUR HOME</div>
+          <div class="greet">Good morning, Alex</div></div>
+        <div class="scrim"></div>
+        <div class="sheet" style="top:78px">
+          <div class="grab"></div>
+          <div style="text-align:center;padding:12px 0 2px">
+            <div style="font-size:44px;line-height:1">🏡</div>
+            <div style="font-size:19px;font-weight:800;margin-top:7px;color:var(--ink)">Our Home</div>
+            <div style="font-size:12.5px;color:var(--ink-2);margin-top:3px">4 plants · shared via iCloud</div>
+          </div>
+          <div class="hdr">PEOPLE</div>
+          <div class="prow"><div class="av a sm">A</div>Alex (you)<span class="badge">OWNER</span></div>
+          <div class="prow"><div class="av s sm">S</div>Sam<span class="r">Can edit</span></div>
+          <div class="prow" style="color:var(--leaf-d);font-weight:700">􀈂 &nbsp;Add People</div>
+          <div class="foot">Everyone you invite sees all plants here and can record waterings.</div>
+          <div style="height:14px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- =================== ROW 3 =================== -->
+<h2 class="sec">Joining, offline &amp; accessibility</h2>
+<div class="row" id="row3">
+
+  <!-- 9 invite -->
+  <div class="cell">
+    <p class="cap"><b>9 · Invited person accepts</b>Taps the link, opens the app, sees the same plants.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="deco" style="top:-10px;right:-24px;transform:rotate(16deg)">🌿</div>
+        <div class="center">
+          <div style="font-size:62px;line-height:1;margin-bottom:12px">🏡</div>
+          <h2>Join Alex’s home?</h2>
+          <p>You’ll see all the plants in <b>Our Home</b><br>and can record waterings.</p>
+          <div style="display:flex;gap:-8px;margin-top:16px">
+            <div class="av a">A</div><div class="av s" style="margin-left:-8px">S</div>
+          </div>
+          <div style="background:linear-gradient(160deg,#4FB06A,var(--leaf-d));color:#fff;
+                      border-radius:16px;padding:13px 40px;margin-top:18px;font-size:15.5px;
+                      font-weight:800;box-shadow:0 7px 18px rgba(42,115,64,.34)">Join</div>
+          <div style="color:var(--ink-3);margin-top:14px;font-size:14.5px;font-weight:600">Not now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 offline -->
+  <div class="cell">
+    <p class="cap"><b>10 · Offline</b>Fully usable. Watering never waits for the network.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>✈︎ ▮</span></div>
+      <div class="screen">
+        <div class="hd">
+          <div class="eyebrow">OUR HOME</div><div class="greet">Good morning, Alex</div>
+          <div class="people"><div class="av a">A</div><div class="av s">S</div></div>
+        </div>
+        <div class="offbar">✈︎ &nbsp;Offline — your changes will sync later</div>
+        <div class="cards" style="padding-top:11px">
+          <div class="card" style="--ac:var(--lilac);--acl:var(--lilac-l)"><div class="tint"></div>
+            <div class="pot">🪴</div>
+            <div class="cinfo"><div class="cname">Fiddle Leaf Fig</div>
+              <div class="cwhen">Never watered</div></div>
+            <div class="water">💧 Water</div></div>
+          <div class="card" style="--ac:var(--leaf);--acl:var(--sage-1);
+               background:linear-gradient(150deg,#EAF7EC,#fff)"><div class="tint"></div>
+            <div class="pot">🌵</div>
+            <div class="cinfo"><div class="cname">Snake Plant</div>
+              <div class="cwhen" style="color:var(--leaf-d);font-weight:700"><span class="ago">Just now</span><span class="chip"><span class="av a sm">A</span>you</span></div></div>
+            <div class="water done">✓ Watered</div></div>
+          <div class="card" style="--ac:var(--leaf);--acl:var(--sage-1)"><div class="tint"></div>
+            <div class="pot">🌿</div>
+            <div class="cinfo"><div class="cname">Monstera</div>
+              <div class="cwhen"><span class="ago">2 days ago</span><span class="chip blue"><span class="av s sm">S</span>Sam</span></div></div>
+            <div class="water">💧 Water</div></div>
+        </div>
+        <div class="sync"><span class="dot off"></span> 1 change waiting to sync</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11 archived -->
+  <div class="cell">
+    <p class="cap"><b>11 · Archived plants</b>Reached from the home sheet. Restore brings a plant back.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="navbar"><span class="lead">‹ Plants</span>Archived</div>
+        <div class="cards" style="padding-top:8px">
+          <div class="card" style="--ac:#C2C9BF;--acl:#EFF1ED"><div class="tint"></div>
+            <div class="pot" style="filter:grayscale(1);opacity:.65">🌾</div>
+            <div class="cinfo"><div class="cname" style="color:var(--ink-3)">Pothos</div>
+              <div class="cwhen">12 Aug · 7 waterings</div></div>
+            <div class="water ghost" style="color:var(--leaf-d)">Restore</div></div>
+          <div class="card" style="--ac:#C2C9BF;--acl:#EFF1ED"><div class="tint"></div>
+            <div class="pot" style="filter:grayscale(1);opacity:.65">🌵</div>
+            <div class="cinfo"><div class="cname" style="color:var(--ink-3)">Old Cactus</div>
+              <div class="cwhen">2 Jul · 3 waterings</div></div>
+            <div class="water ghost" style="color:var(--leaf-d)">Restore</div></div>
+        </div>
+        <div class="foot" style="margin-top:6px">Archived plants keep their watering history.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12 a11y -->
+  <div class="cell">
+    <p class="cap"><b>12 · Accessibility</b>Colour is decoration only — never the carrier of meaning.</p>
+    <div class="phone"><div class="notch"></div>
+      <div class="bg"></div>
+      <div class="status"><span>9:41</span><span>≡ ⌁ ▮</span></div>
+      <div class="screen">
+        <div class="hd"><div class="eyebrow">OUR HOME</div><div class="greet">Good morning, Alex</div></div>
+        <div class="cards" style="padding-top:11px">
+          <div class="card" style="--ac:var(--leaf);--acl:var(--sage-1);
+               outline:3px solid #101810;outline-offset:2px"><div class="tint"></div>
+            <div class="pot">🌿</div>
+            <div class="cinfo"><div class="cname">Monstera</div>
+              <div class="cwhen"><span class="ago">2 days ago</span><span class="chip blue"><span class="av s sm">S</span>Sam</span></div></div>
+            <div class="water">💧 Water</div></div>
+          <div class="card" style="--ac:var(--terra);--acl:var(--terra-l)"><div class="tint"></div>
+            <div class="pot">🌵</div>
+            <div class="cinfo"><div class="cname">Snake Plant</div>
+              <div class="cwhen"><span class="ago">9 days ago</span><span class="chip"><span class="av a sm">A</span>you</span></div></div>
+            <div class="water">💧 Water</div></div>
+        </div>
+        <div style="margin:14px 16px;background:linear-gradient(150deg,#24402A,#16281A);color:#fff;
+                    border-radius:18px;padding:14px 16px;position:relative;z-index:10">
+          <div style="font-size:10px;color:#8FB79A;letter-spacing:1.1px;font-weight:800">VOICEOVER SPEAKS</div>
+          <div style="font-size:13.5px;margin-top:8px;line-height:1.55">
+            “Monstera, last watered two days ago by Sam.”<br>
+            <span style="color:#9DBFA6">“Watered Now, button. Double tap to record a watering.”</span>
+          </div>
+        </div>
+        <div class="foot">
+          Card colour is per-plant identity, never status · 44×44 pt targets ·
+          Dynamic Type to XXXL wraps to two lines.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
