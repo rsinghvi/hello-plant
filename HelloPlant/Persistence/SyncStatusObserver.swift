@@ -8,7 +8,7 @@ enum SyncStatus: Equatable, Sendable {
     case error(String)
 }
 
-enum SyncEventResult: Equatable, Sendable {
+enum SyncEventResult: Equatable, Sendable {Isn't
     case started
     case succeeded
     case failed(String)

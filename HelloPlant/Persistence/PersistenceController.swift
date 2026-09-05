@@ -5,20 +5,30 @@ final class PersistenceController: @unchecked Sendable {
     static let cloudContainerIdentifier = "iCloud.com.rahulsinghvi.HelloPlant"
     static let shared = PersistenceController()
 
+    // TEMPORARY: flip to `true` once this app is signed with a paid Apple Developer
+    // Program account (a free "Personal Team" cannot provision the iCloud/Push
+    // capabilities CloudKit sync requires). While `false`, the app runs against a
+    // single local store with no CloudKit involvement at all — no entitlements,
+    // capabilities, or containers are needed. Remove the iCloud and Push
+    // Notifications capabilities in Xcode's Signing & Capabilities tab to match.
+    static let isCloudSyncAvailable = false
+
     let container: NSPersistentCloudKitContainer
     let isCloudKitEnabled: Bool
     private var remoteChangeToken: NSObjectProtocol?
 
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "HelloPlant")
-        isCloudKitEnabled = !inMemory
+        isCloudKitEnabled = !inMemory && Self.isCloudSyncAvailable
 
         if inMemory {
             let description = NSPersistentStoreDescription(url: URL(fileURLWithPath: "/dev/null"))
             description.shouldAddStoreAsynchronously = false
             container.persistentStoreDescriptions = [description]
-        } else {
+        } else if Self.isCloudSyncAvailable {
             container.persistentStoreDescriptions = Self.cloudStoreDescriptions()
+        } else {
+            container.persistentStoreDescriptions = [Self.localOnlyStoreDescription()]
         }
 
         container.loadPersistentStores { _, error in
@@ -41,6 +51,13 @@ final class PersistenceController: @unchecked Sendable {
         container.persistentStoreCoordinator.persistentStores.first {
             $0.url?.lastPathComponent == "Shared.sqlite"
         }
+    }
+
+    private static func localOnlyStoreDescription() -> NSPersistentStoreDescription {
+        let directory = NSPersistentContainer.defaultDirectoryURL()
+        let description = NSPersistentStoreDescription(url: directory.appendingPathComponent("Local.sqlite"))
+        description.configuration = "Default"
+        return description
     }
 
     private static func cloudStoreDescriptions() -> [NSPersistentStoreDescription] {

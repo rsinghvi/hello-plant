@@ -18,8 +18,11 @@ final class PlantListViewModel {
     let syncObserver: SyncStatusObserver
 
     private let repository: any PlantRepository
-    private var undoExpirationTask: Task<Void, Never>?
-    private var changeToken: NSObjectProtocol?
+    // `deinit` is nonisolated, so these need to opt out of main-actor isolation
+    // checking to be read/cancelled there; they are otherwise only touched
+    // while already on the main actor.
+    nonisolated(unsafe) private var undoExpirationTask: Task<Void, Never>?
+    nonisolated(unsafe) private var changeToken: NSObjectProtocol?
 
     init(
         repository: any PlantRepository,

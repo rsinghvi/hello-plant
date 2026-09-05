@@ -778,6 +778,24 @@ done in the simulator or with a single Apple ID.
 
 Everything below happens on the Mac, in Xcode. Nothing here can be scripted from Windows.
 
+> **Apple Developer Program requirement.** CloudKit sync and Home sharing (Phases 4-6:
+> `NSPersistentCloudKitContainer` mirroring, `ShareCoordinator`, share-acceptance) need the
+> **iCloud** and **Push Notifications** capabilities. Apple does not allow a free "Personal
+> Team" account to provision either capability — only a paid **Apple Developer Program**
+> membership ($99/year) can. If you only have a free/personal Apple ID, Xcode will fail to
+> create a provisioning profile the moment those capabilities are attached to the target.
+>
+> **You can still test everything else on the Mac without paying.** `PersistenceController`
+> has a `static let isCloudSyncAvailable = false` flag (in
+> `HelloPlant/Persistence/PersistenceController.swift`). While it is `false`, the app loads a
+> single local SQLite store with no CloudKit involvement at all, so it builds, signs, and runs
+> under a free Personal Team. Remove the **iCloud** and **Push Notifications** capabilities in
+> **Signing & Capabilities** to match (see step 4 below), then run through sections A-D and the
+> **single-device** checklist in section 3 — everything except syncing/sharing across devices
+> is fully testable this way. Skip section E (two-device sharing) and the CloudKit schema step
+> (13) until you enroll. Once enrolled, re-add both capabilities, flip the flag to `true`, and
+> resume from step 13.
+
 ### A. One-time setup
 
 1. Copy or `git clone` this repository onto the Mac (or `git pull` if it already exists there).
@@ -788,11 +806,15 @@ Everything below happens on the Mac, in Xcode. Nothing here can be scripted from
    * Set **Team** to the Apple Developer account that owns `9GLZK7V7CD` (or switch to your
      own team if this is a personal account — Xcode will rewrite the bundle ID/team pairing).
    * Confirm **Automatically manage signing** is checked.
-   * Confirm an **iCloud** capability is present with **CloudKit** checked and container
-     `iCloud.com.rahulsinghvi.HelloPlant` selected (create it here if it's missing — Xcode
-     will register it in your developer account).
-   * Confirm **Background Modes** → **Remote notifications** is checked (needed for
-     CloudKit push updates).
+   * **With a paid Apple Developer Program account:** confirm an **iCloud** capability is
+     present with **CloudKit** checked and container `iCloud.com.rahulsinghvi.HelloPlant`
+     selected (create it here if it's missing — Xcode will register it in your developer
+     account), and confirm **Background Modes** → **Remote notifications** is checked (needed
+     for CloudKit push updates).
+   * **With only a free Personal Team account:** remove the **iCloud** and **Push
+     Notifications** capability cards entirely (click the "x" on each) and leave
+     `PersistenceController.isCloudSyncAvailable` set to `false`. Signing will succeed and the
+     app runs on a local-only store; revisit this step once you enroll in the paid program.
 5. Repeat the Team check for the `HelloPlantTests` and `HelloPlantUITests` targets.
 
 ### B. Build and open the data model
@@ -824,7 +846,9 @@ Everything below happens on the Mac, in Xcode. Nothing here can be scripted from
     name capture, add/rename/archive plants, Watered Now + Undo, history ordering, force-quit
     and relaunch (data persists), iCloud signed out (still works, no crash), VoiceOver,
     Dynamic Type XXXL, dark mode.
-13. Push the CloudKit schema once, from a device signed into iCloud: either call
+13. **Requires a paid Apple Developer Program account and the iCloud/Push capabilities
+    re-enabled with `isCloudSyncAvailable = true`.** Push the CloudKit schema once, from a
+    device signed into iCloud: either call
     `container.initializeCloudKitSchema()` temporarily (debug-only) or just run the app once
     with a real device/iCloud account so the container mirrors and creates the schema
     automatically. Then check **CloudKit Console** (developer.apple.com → your container →
@@ -832,6 +856,9 @@ Everything below happens on the Mac, in Xcode. Nothing here can be scripted from
     exist.
 
 ### E. Manual two-device pass (sharing and sync)
+
+> Requires the paid Apple Developer Program account and `isCloudSyncAvailable = true` (see
+> the note at the top of this section). Skip this whole section on a free Personal Team.
 
 14. You need **two physical iPhones signed into two different iCloud accounts** (simulators
     cannot reliably test CloudKit sharing).
