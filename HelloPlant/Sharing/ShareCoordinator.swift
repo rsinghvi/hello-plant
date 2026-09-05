@@ -37,15 +37,7 @@ final class ShareCoordinator: @unchecked Sendable {
     }
 
     private func existingShare(for homeID: NSManagedObjectID) async throws -> CKShare? {
-        try await withCheckedThrowingContinuation { continuation in
-            persistence.container.fetchShares(matching: [homeID]) { shares, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume(returning: shares?[homeID])
-                }
-            }
-        }
+        try persistence.container.fetchShares(matching: [homeID])[homeID]
     }
 
     private func makeShare(for homeID: NSManagedObjectID) async throws -> (CKShare, CKContainer) {
