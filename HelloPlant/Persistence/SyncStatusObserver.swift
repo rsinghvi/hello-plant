@@ -18,7 +18,10 @@ enum SyncEventResult: Equatable, Sendable {
 @Observable
 final class SyncStatusObserver {
     private(set) var status: SyncStatus = .idle
-    private var token: NSObjectProtocol?
+    // Cleanup in `deinit` runs outside actor isolation, so the token itself is
+    // opted out of isolation checking; it is only ever touched from `init`
+    // (main actor at the time) and `deinit` (after the last strong reference).
+    nonisolated(unsafe) private var token: NSObjectProtocol?
 
     init(notificationCenter: NotificationCenter = .default) {
         token = notificationCenter.addObserver(
@@ -26,9 +29,12 @@ final class SyncStatusObserver {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            guard let event = notification.userInfo?[
-                NSPersistentCloudKitContainer.eventNotificationUserInfoKey
-            ] as? NSPersistentCloudKitContainer.Event else {
+            guard
+                let self,
+                let event = notification.userInfo?[
+                    NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+                ] as? NSPersistentCloudKitContainer.Event
+            else {
                 return
             }
             let result: SyncEventResult
@@ -39,7 +45,9 @@ final class SyncStatusObserver {
             } else {
                 result = .succeeded
             }
-            Task { @MainActor in self?.apply(result) }
+            Task { @MainActor in
+                self.apply(result)
+            }
         }
     }
 
