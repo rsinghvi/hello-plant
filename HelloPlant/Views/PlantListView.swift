@@ -195,10 +195,16 @@ struct PlantListView: View {
                 .font(.caption)
                 .foregroundStyle(Palette.inkTertiary)
                 .symbolRenderingMode(.monochrome)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 6)
         case .syncing:
             Label("Syncing…", systemImage: "arrow.triangle.2.circlepath")
                 .font(.caption)
                 .foregroundStyle(Palette.inkTertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 6)
         case .error:
             Label("Offline — your changes will sync later", systemImage: "airplane")
                 .font(.caption.bold())
@@ -207,6 +213,9 @@ struct PlantListView: View {
                 .padding(.vertical, 8)
                 .background(Color(hex: 0xFDF3DF))
                 .clipShape(RoundedRectangle(cornerRadius: 13))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 6)
         }
     }
 
